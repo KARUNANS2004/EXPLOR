@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet, { contentSecurityPolicy } from 'helmet';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -30,7 +30,7 @@ app.use(morgan("dev")) // log the requests
 
 // apply arcjet rate-limit to all routes
 
-app.use(async(req,res,next)=>{
+app.use(async(req:Request,res:Response,next:NextFunction)=>{
     try {
         const decision= await aj.protect(req,{requested:1})// specifies that each request consumes one token
         console.log("Arcjet decision:", decision)
@@ -47,7 +47,7 @@ app.use(async(req,res,next)=>{
         }
 
         // check for spoofed bots
-        if(decision.results.some((result)=>{result.reason.isBot() && result.reason.isSpoofed()})){
+        if(decision.results.some((result:any)=>{result.reason.isBot() && result.reason.isSpoofed()})){
             res.status(403).json({error:"Spoofed bot detected"});
             return;
         }
